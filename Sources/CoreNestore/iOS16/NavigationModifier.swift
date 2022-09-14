@@ -8,15 +8,13 @@
 import SwiftUI
 
 public struct NavigationModifier: ViewModifier {
+    let color: Color
+    
     public func body(content: Content) -> some View {
         if #available(iOS 16.0, *) {
-//            NavigationStack {
-//                content
-//            }
-            NavigationView {
+            NavigationStack {
                 content
             }
-            .navigationViewStyle(.stack)
         } else {
             NavigationView {
                 content
@@ -27,7 +25,7 @@ public struct NavigationModifier: ViewModifier {
 }
 
 public extension View {
-    func addNavigation() -> some View {
-        modifier(NavigationModifier())
+    func addNavigation(tint: Color) -> some View {
+        modifier(NavigationModifier(color: tint))
     }
 }

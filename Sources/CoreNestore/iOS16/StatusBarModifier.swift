@@ -7,21 +7,23 @@
 
 import SwiftUI
 
-//struct StatusBarModifier: ViewModifier {
-//    let color: ColorScheme?
-//    
-//    func body(content: Content) -> some View {
-//        if #available(iOS 16.0, *) {
-//            content
-////                .toolbarColorScheme(.light, for: .navigationBar)
-//        } else {
-//            content
-//        }
-//    }
-//}
-//
-//extension View {
-//    func setStatusBar(color: ColorScheme?) -> some View {
-//        modifier(StatusBarModifier(color: color))
-//    }
-//}
+/// SHOULD BE CALLED ONLY ONCE PER NAVIGATIONSTACK
+public struct StatusBarModifier: ViewModifier {
+    let color: ColorScheme?
+    
+    public func body(content: Content) -> some View {
+        if #available(iOS 16.0, *) {
+            content
+                .toolbarColorScheme(color, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+        } else {
+            content
+        }
+    }
+}
+
+public extension View {
+    func statusBar(color: ColorScheme?) -> some View {
+        modifier(StatusBarModifier(color: color))
+    }
+}
