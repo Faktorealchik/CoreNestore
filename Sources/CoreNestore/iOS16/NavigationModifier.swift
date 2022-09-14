@@ -10,9 +10,13 @@ import SwiftUI
 public struct NavigationModifier: ViewModifier {
     public func body(content: Content) -> some View {
         if #available(iOS 16.0, *) {
-            NavigationStack {
+//            NavigationStack {
+//                content
+//            }
+            NavigationView {
                 content
             }
+            .navigationViewStyle(.stack)
         } else {
             NavigationView {
                 content
