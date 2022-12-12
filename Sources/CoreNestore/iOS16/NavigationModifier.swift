@@ -11,16 +11,16 @@ public struct NavigationModifier: ViewModifier {
     let color: Color
     
     public func body(content: Content) -> some View {
-        if #available(iOS 16.0, *) {
-            NavigationStack {
-                content
-            }
-        } else {
+//        if #available(iOS 16.0, *) {
+//            NavigationStack {
+//                content
+//            }
+//        } else {
             NavigationView {
                 content
             }
             .navigationViewStyle(.stack)
-        }
+//        }
     }
 }
 
