@@ -18,8 +18,8 @@ public class OnDemandResourcesManager: NSObject {
     private var observation: Any?
     public var onChangeProgress: ((Double) -> Void)?
     
-    public func requestSceneWith(resources: Set<String>) async throws {
-        let request = NSBundleResourceRequest(tags: resources)
+    public func requestSceneWith(resources: Set<String>, bundle: Bundle) async throws {
+        let request = NSBundleResourceRequest(tags: resources, bundle: bundle)
         currentRequest = request
         request.loadingPriority = NSBundleResourceRequestLoadingPriorityUrgent
         observation = request.progress.observe(
