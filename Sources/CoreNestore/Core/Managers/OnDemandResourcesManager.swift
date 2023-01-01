@@ -17,11 +17,8 @@ public class OnDemandResourcesManager: NSObject {
     private var currentRequest: NSBundleResourceRequest?
     private var observation: Any?
     public var onChangeProgress: ((Double) -> Void)?
-    var timer = BenchTimer()
     
     public func requestSceneWith(resources: Set<String>) async throws {
-        timer = BenchTimer()
-        
         let request = NSBundleResourceRequest(tags: resources)
         currentRequest = request
         request.loadingPriority = NSBundleResourceRequestLoadingPriorityUrgent
@@ -39,8 +36,6 @@ public class OnDemandResourcesManager: NSObject {
         if !result {
             try await request.beginAccessingResources()
         }
-        
-        _ = timer.stop()
     }
     
     public func close() {
