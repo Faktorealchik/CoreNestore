@@ -47,7 +47,11 @@ public class OnDemandResourcesManager: NSObject {
     }
     
     public func path(forResource: String, ofType: String) -> String? {
-        return currentRequest?.bundle.path(forResource: forResource, ofType: ofType)
+        if let currentRequest {
+            return currentRequest.bundle.path(forResource: forResource, ofType: ofType)
+        } else {
+            return bundle.path(forResource: forResource, ofType: ofType)
+        }
     }
     
     public func log(_ progress: Progress) {
