@@ -12,13 +12,17 @@ import UIKit
 public class OnDemandResourcesManager: NSObject {
 
     // MARK: - Properties
-    public static let shared = OnDemandResourcesManager()
+    private let bundle: Bundle
+    
+    public init(bundle: Bundle) {
+        self.bundle = bundle
+    }
     
     private var currentRequest: NSBundleResourceRequest?
     private var observation: Any?
     public var onChangeProgress: ((Double) -> Void)?
     
-    public func requestSceneWith(resources: Set<String>, bundle: Bundle) async throws {
+    public func requestSceneWith(resources: Set<String>) async throws {
         let request = NSBundleResourceRequest(tags: resources, bundle: bundle)
         currentRequest = request
         request.loadingPriority = NSBundleResourceRequestLoadingPriorityUrgent
