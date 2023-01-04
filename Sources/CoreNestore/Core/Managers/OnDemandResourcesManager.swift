@@ -11,19 +11,17 @@ import UIKit
 
 public class OnDemandResourcesManager: NSObject {
 
-    // MARK: - Properties
-    private let bundle: Bundle
-    
-    public init(bundle: Bundle) {
-        self.bundle = bundle
-    }
+    public static let shared = OnDemandResourcesManager()
     
     private var currentRequest: NSBundleResourceRequest?
     private var observation: Any?
     public var onChangeProgress: ((Double) -> Void)?
+    public var onError: ((Error) -> Void)?
     
-    public func requestSceneWith(resources: Set<String>) async throws {
-        let request = NSBundleResourceRequest(tags: resources, bundle: bundle)
+    public func requestSceneWith(isDownloaded: Bool, resources: Set<String>) async throws {
+        guard !isDownloaded else { return }
+        
+        let request = NSBundleResourceRequest(tags: resources)
         currentRequest = request
         request.loadingPriority = NSBundleResourceRequestLoadingPriorityUrgent
         observation = request.progress.observe(
@@ -40,6 +38,32 @@ public class OnDemandResourcesManager: NSObject {
         if !result {
             try await request.beginAccessingResources()
         }
+        
+        save()
+        close()
+    }
+    
+    private func save() {
+        guard let currentRequest else { return }
+        let documentsDirectory = URL.documentsDirectory
+        let urls = currentRequest.bundle.urls(forResourcesWithExtension: nil, subdirectory: nil) ?? []
+        for url in urls {
+            do {
+                if !url.isDirectory {
+                    let newPath = documentsDirectory.appending(path: url.lastPathComponent)
+                    try copy(url: url, to: newPath)
+                }
+            } catch {
+                onError?(error)
+            }
+        }
+    }
+    
+    private func copy(url: URL, to: URL) throws {
+        if FileManager.default.fileExists(atPath: to.path) { return }
+        try FileManager.default.copyItem(
+            at: url,
+            to: to)
     }
     
     public func close() {
@@ -47,14 +71,17 @@ public class OnDemandResourcesManager: NSObject {
     }
     
     public func path(forResource: String, ofType: String) -> String? {
-        if let currentRequest {
-            return currentRequest.bundle.path(forResource: forResource, ofType: ofType)
-        } else {
-            return bundle.path(forResource: forResource, ofType: ofType)
-        }
+        let type = ofType.replacingOccurrences(of: ".", with: "")
+        return URL.documentsDirectory.appending(path: "\(forResource).\(type)").path
     }
     
-    public func log(_ progress: Progress) {
+    private func log(_ progress: Progress) {
         onChangeProgress?(floor(progress.fractionCompleted * 100))
+    }
+}
+
+public extension URL {
+    var isDirectory: Bool {
+       (try? resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
     }
 }
